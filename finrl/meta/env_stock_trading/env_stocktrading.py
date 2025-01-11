@@ -306,6 +306,25 @@ class StockTradingEnv(gym.Env):
             #llm_sentiments = self.data[self.llm_sentiment_col].values  # Get LLM sentiment for all stocks
             #actions = np.where(llm_sentiments > 0, actions, 0)  # Example: Only execute actions where sentiment > 0
         #RESUME HERE
+            # Fetch LLM sentiments for the current day
+            llm_sentiments = self.data[self.llm_sentiment_col].values  # values: [1, 2, 3, 4, 5]
+
+            # Create masks for action types
+            buy_mask = (actions > 0)
+            sell_mask = (actions < 0)
+
+            # Create masks based on LLM sentiments
+            strong_sell_mask = (llm_sentiments == 1)
+            moderate_sell_mask = (llm_sentiments == 2)
+            hold_mask = (llm_sentiments == 3)
+            moderate_buy_mask = (llm_sentiments == 4)
+            strong_buy_mask = (llm_sentiments == 5)
+
+            # Adjust actions based on combined conditions
+            actions[(strong_sell_mask & buy_mask) | (strong_buy_mask & sell_mask)] *= 0.5  # Reduce mismatched strong actions
+            actions[(moderate_sell_mask & buy_mask) | (moderate_buy_mask & sell_mask)] *= 0.7  # Reduce mismatched moderate actions
+            actions[hold_mask] *= 0.8  # Reduce all actions for neutral sentiment
+
             actions = actions * self.hmax  # actions initially is scaled between 0 to 1
             actions = actions.astype(
                 int
