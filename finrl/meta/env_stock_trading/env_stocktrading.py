@@ -36,6 +36,7 @@ class StockTradingEnv(gym.Env):
         tech_indicator_list: list[str],
         turbulence_threshold=None,
         risk_indicator_col="turbulence",
+        llm_sentiment_col="llm_sentiment", #added llm_sentiment
         make_plots: bool = False,
         print_verbosity=10,
         day=0,
@@ -67,6 +68,7 @@ class StockTradingEnv(gym.Env):
         self.print_verbosity = print_verbosity
         self.turbulence_threshold = turbulence_threshold
         self.risk_indicator_col = risk_indicator_col
+        self.llm_sentiment_col=llm_sentiment_col
         self.initial = initial
         self.previous_state = previous_state
         self.model_name = model_name
@@ -300,6 +302,10 @@ class StockTradingEnv(gym.Env):
             return self.state, self.reward, self.terminal, False, {}
 
         else:
+            # Apply LLM sentiment to influence actions
+            #llm_sentiments = self.data[self.llm_sentiment_col].values  # Get LLM sentiment for all stocks
+            #actions = np.where(llm_sentiments > 0, actions, 0)  # Example: Only execute actions where sentiment > 0
+        #RESUME HERE
             actions = actions * self.hmax  # actions initially is scaled between 0 to 1
             actions = actions.astype(
                 int
@@ -415,6 +421,7 @@ class StockTradingEnv(gym.Env):
                         ),
                         [],
                     )
+                    + self.data[self.llm_sentiment_col].values.tolist() #add llm sentiment
                 )  # append initial stocks_share to initial state, instead of all zero
             else:
                 # for single stock
@@ -423,6 +430,7 @@ class StockTradingEnv(gym.Env):
                     + [self.data.close]
                     + [0] * self.stock_dim
                     + sum(([self.data[tech]] for tech in self.tech_indicator_list), [])
+                    + [self.data[self.llm_sentiment_col]]
                 )
         else:
             # Using Previous State
@@ -468,6 +476,7 @@ class StockTradingEnv(gym.Env):
                     ),
                     [],
                 )
+                + self.data[self.llm_sentiment_col].values.tolist() # add LLM sentiment
             )
 
         else:
@@ -477,6 +486,7 @@ class StockTradingEnv(gym.Env):
                 + [self.data.close]
                 + list(self.state[(self.stock_dim + 1) : (self.stock_dim * 2 + 1)])
                 + sum(([self.data[tech]] for tech in self.tech_indicator_list), [])
+                + [self.data[self.llm_sentiment_col]] #add LLM sentiment
             )
 
         return state
