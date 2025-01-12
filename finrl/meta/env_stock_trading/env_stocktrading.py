@@ -440,7 +440,7 @@ class StockTradingEnv(gym.Env):
                         ),
                         [],
                     )
-                    + self.data[self.llm_sentiment_col].values.tolist() #add llm sentiment
+                #    + self.data[self.llm_sentiment_col].values.tolist() #add llm sentiment
                 )  # append initial stocks_share to initial state, instead of all zero
             else:
                 # for single stock
