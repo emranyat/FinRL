@@ -97,7 +97,8 @@ class StockTradingEnv(gym.Env):
         self.date_memory = [self._get_date()]
         #         self.logger = Logger('results',[CSVOutputFormat])
         # self.reset()
-        self._seed()
+       # self._seed()
+        self.seed()
 
     def _sell_stock(self, index, action):
         def _do_sell_normal():
