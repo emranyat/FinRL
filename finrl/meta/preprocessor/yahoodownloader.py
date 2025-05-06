@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import yfinance as yf
+from curl_cffi import requests
 
 
 class YahooDownloader:
@@ -27,7 +28,7 @@ class YahooDownloader:
         Fetches data from yahoo API
 
     """
-
+    
     def __init__(self, start_date: str, end_date: str, ticker_list: list):
         self.start_date = start_date
         self.end_date = end_date
@@ -45,6 +46,7 @@ class YahooDownloader:
             for the specified stock ticker
         """
         # Download and save the data in a pandas DataFrame:
+        session = requests.Session(impersonate="chrome")
         data_df = pd.DataFrame()
         num_failures = 0
         for tic in self.ticker_list:
