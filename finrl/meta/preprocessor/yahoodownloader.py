@@ -7,9 +7,11 @@ from __future__ import annotations
 import pandas as pd
 import yfinance as yf
 from curl_cffi import requests
+session = requests.Session(impersonate="chrome")
 
 
 class YahooDownloader:
+    session = requests.Session(impersonate="chrome")
     """Provides methods for retrieving daily stock data from
     Yahoo Finance API
 
